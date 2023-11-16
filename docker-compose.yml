@@ -1,0 +1,69 @@
+# docker-compose.yml
+version: '3.8'
+
+
+   
+
+services:
+  app:
+
+    restart: on-failure
+    build: .
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://postgres:Zkif63}R@postgres:5432/fackta
+      NODE_ENV: development
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    command: npm run start
+
+    volumes:
+       - .:/usr/src/app
+     
+     
+  postgres:
+    image: postgres:alpine
+    environment:
+      POSTGRES_DB: fackta
+      POSTGRES_PASSWORD: Zkif63}R
+      POSTGRES_USER: postgres
+    ports:
+      - 5435:5432
+    restart: on-failure:3
+
+ 
+
+  redis:
+    image: redis:latest
+    command: redis-server
+    volumes:
+      - redis:/var/lib/redis
+      - redis-config:/usr/local/etc/redis/redis.conf
+    ports:
+      - 6379:6379
+    networks:
+      - redis-network
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+      - HTTP_USER=root
+      - HTTP_PASSWORD=qwerty
+    ports:
+      - 8081:8081
+    networks:
+      - redis-network
+    depends_on:
+      - redis
+
+volumes:
+  redis:
+  redis-config:
+
+
+networks:
+  redis-network:
+    driver: bridge
